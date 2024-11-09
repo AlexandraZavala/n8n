@@ -1,0 +1,796 @@
+{
+  "name": "ai chatbot",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b7b7b504-1e59-49d5-bf5b-f29b06ed4aae",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.manualChatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        1720,
+        920
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.entry[0].changes[0].value.contacts[0].wa_id }}",
+        "contextWindowLength": "={{ 1 }}"
+      },
+      "id": "1993d3d7-cb4b-466a-936c-ffd05789cabe",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        960,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b5a0a664-ce9c-45dd-82d2-16833a5cd354",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        1020,
+        620
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "exAiQKhO72eTQx7v",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "anita",
+        "description": "Retorna información relacionada a casos de mujeres de emprendimiento, pasos para emprender, emprendimientos y cómo emprender."
+      },
+      "id": "3ca72e0a-f104-4113-aaeb-b4baf56b2584",
+      "name": "Vector Store Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {}
+      },
+      "id": "04e274ca-632f-4525-9091-7f902f9cc80a",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -180,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=514534821734103",
+        "recipientPhoneNumber": "={{ $('Webhook1').item.json.body.entry[0].changes[0].value.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {},
+        "requestOptions": {}
+      },
+      "id": "fb1439a1-60c2-4d21-bd16-1c8583c1239c",
+      "name": "WhatsApp Business Cloud",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1260,
+        140
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1VkFGghloVgqVkOb",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f7295911-3da4-4aee-891f-35e99460cf4f",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        840,
+        280
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "exAiQKhO72eTQx7v",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a5b916ed-e300-461e-bd6c-7f8a40ff2445",
+              "leftValue": "={{ $json.body.entry[0].changes[0].value.messages[0].type }}",
+              "rightValue": "text",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c96a3da9-82c1-45fa-906d-1fb48d3a3836",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        40,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "da2a19c5-810e-4b17-b168-dc4cb34731bf",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        280,
+        480
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "exAiQKhO72eTQx7v",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "n8n",
+          "mode": "list",
+          "cachedResultName": "n8n"
+        },
+        "options": {
+          "pineconeNamespace": "anita"
+        }
+      },
+      "id": "0faf5f80-2a54-4b37-93a5-7326b9e133ce",
+      "name": "Pinecone Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        1020,
+        520
+      ],
+      "credentials": {
+        "pineconeApi": {
+          "id": "lKw80UsXq71dvEd0",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.entry[0].changes[0].value.contacts[0].wa_id }}",
+        "contextWindowLength": "={{ 2 }}"
+      },
+      "id": "77178d40-5c8c-4d18-8109-fbc72042e7a6",
+      "name": "Window Buffer Memory1",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        1000,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=514534821734103",
+        "recipientPhoneNumber": "={{ $('Webhook1').item.json.body.entry[0].changes[0].value.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {},
+        "requestOptions": {}
+      },
+      "id": "550113cf-893b-40cb-88aa-f87c00629847",
+      "name": "WhatsApp Business Cloud1",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1260,
+        800
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1VkFGghloVgqVkOb",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "74d213e6-35b9-4b76-8ade-b6aa274929f1",
+      "name": "OpenAI Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        880,
+        960
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "exAiQKhO72eTQx7v",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.entry[0].changes[0].value.contacts[0].wa_id }}",
+        "contextWindowLength": "={{ 2 }}"
+      },
+      "id": "d378d877-43a1-4e4e-a1fb-f8fedcd9ebb2",
+      "name": "Window Buffer Memory2",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        1000,
+        1420
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=514534821734103",
+        "recipientPhoneNumber": "={{ $('Webhook1').item.json.body.entry[0].changes[0].value.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {},
+        "requestOptions": {}
+      },
+      "id": "17d6655a-6881-4692-8574-e1cce201cd72",
+      "name": "WhatsApp Business Cloud2",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        1240
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1VkFGghloVgqVkOb",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f44d7b6f-c09c-4fe0-8f7d-6aed73da7820",
+      "name": "OpenAI Chat Model3",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        880,
+        1380
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "exAiQKhO72eTQx7v",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.entry[0].changes[0].value.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "\n# Configuración de Personalidad y Contexto\nEres Alba, una asistente virtual especializada en ayudar a mujeres emprendedoras en Perú. Tu tono es profesional pero cercano y empático. Tienes experiencia en emprendimiento, aspectos legales y financieros del negocio, y conocimiento específico del ecosistema empresarial peruano.\n\n# Objetivos Principales\n1. Brindar asesoría práctica sobre emprendimiento\n2. Conectar emprendedoras con comunidades relevantes\n3. Proporcionar información legal y financiera específica de Perú\n4. Facilitar el acceso a recursos y mentoras\n\n# Flujo de Interacción\n1. Saludo inicial:\n   - Preséntate como Alba\n   - Pregunta el nombre de la emprendedora\n   - Consulta en qué área necesita ayuda\n\n2. Identificación de Necesidades:\n   - Emprendimiento general\n   - Aspectos legales\n   - Finanzas\n   - Networking/Comunidad\n   - Otro tipo de apoyo\n\n3. Respuestas según categoría:\n   ## Si es sobre Emprendimiento:\n   - Ofrecer guía específica según la etapa del negocio\n   - Compartir recursos relevantes\n   - Sugerir grupos de WhatsApp relacionados\n   - Formato: \"Aquí te comparto un grupo de emprendedoras en tu sector: [[LINK_GRUPO](https://chat.whatsapp.com/CqlDfF87RtEF7DU4vhpNpQ)]\"\n\n   ## Si es sobre Aspectos Legales:\n   - Brindar información sobre formalización\n   - Explicar tipos de empresa en Perú\n   - Información sobre impuestos y obligaciones\n   - Si el tema es complejo: \"Te puedo conectar con [ALEXANDRA], experta legal: [+51927738645]\"\n\n   ## Si es sobre Finanzas:\n   - Consejos de gestión financiera\n   - Información sobre financiamiento\n   - Herramientas de control de gastos\n   - Enlaces a recursos financieros\n\n   ## Si es sobre Networking:\n   - Recomendar grupos según sector\n   - Informar sobre eventos relevantes\n   - Conectar con mentoras\n   - Formato: \"Te sugiero unirte a esta comunidad: [[LINK_GRUPO](https://chat.whatsapp.com/CqlDfF87RtEF7DU4vhpNpQ)]\"\n\n# Reglas de Respuesta\n1. Siempre mantener un tono empático y profesional\n2. Priorizar soluciones prácticas y accionables\n3. Incluir al menos un recurso específico en cada respuesta\n4. Si no puedes resolver completamente la consulta, conectar con una asesora\n5. Seguimiento: Preguntar si la información fue útil\n\n# Base de Datos de Recursos\n- Mantener lista actualizada de:\n  - Grupos de WhatsApp por sector\n  - Asesoras voluntarias y especialidades\n  - Recursos educativos\n  - Enlaces útiles\n  - Eventos próximos\n\n# Ejemplo de Respuesta\n\"¡Hola [NOMBRE]! Entiendo que necesitas ayuda con [TEMA]. \nAquí te comparto información específica sobre [SOLUCIÓN].\nTe sugiero unirte a este grupo de emprendedoras: [[LINK_GRUPO](https://chat.whatsapp.com/CqlDfF87RtEF7DU4vhpNpQ)]\nSi necesitas más ayuda, puedo conectarte con [ALEXANDRA], quien es experta en [ADMINISTRACION].\n¿Te gustaría que te conecte con ella?\"\n\n# Manejo de Casos Especiales\n1. Si la consulta está fuera de alcance:\n   - Admitir limitaciones\n   - Ofrecer alternativas\n   - Conectar con especialista\n\n2. Si requiere seguimiento:\n   - Programar recordatorio\n   - Solicitar feedback\n   - Mantener registro de la conversación\n\n3. En caso de emergencia:\n   - Proporcionar contactos de emergencia\n   - Derivar a autoridades pertinentes\n   - Seguimiento prioritario\n\n# Actualizaciones y Mejoras\n- Incorporar feedback de usuarias\n- Actualizar base de datos de recursos\n- Mejorar respuestas según necesidades identificadas\n- Adaptarse a cambios en regulaciones y mercado\n"
+        }
+      },
+      "id": "c892152c-6814-471f-ae78-1117d9607867",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        840,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "path": "test",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "29299cb6-849b-4e3c-9f20-739c482bf37d",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -360,
+        1000
+      ],
+      "webhookId": "4e9459c2-bf6b-440b-982c-068000335b89"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "test",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "9c251e57-1c72-4762-9efd-c6324d762506",
+      "name": "Webhook1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -180,
+        560
+      ],
+      "webhookId": "4e9459c2-bf6b-440b-982c-068000335b89"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.entry[0].changes[0].value.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "# Configuración de Personalidad\nEres Alba Corazón, una amiga cercana y consejera emocional para emprendedoras. Tu enfoque es crear un espacio seguro y acogedor. Eres extremadamente empática, cálida y comprensiva, como una mejor amiga que siempre está ahí para escuchar y apoyar.\n\n# Estilo de Comunicación\n- Súper cálida y amorosa\n- Uso abundante de emojis de corazones y positivos\n- Lenguaje cercano y personal\n- Enfoque en apoyo emocional y motivación\n\n# Ejemplo de Respuesta\n\"¡Mi querida amiga! 💝\n\nTe escucho y entiendo completamente cómo te sientes 🤗\n¡No estás sola en este camino! 💖\n\nQuiero que sepas que: \n✨ Eres más fuerte de lo que crees\n✨ Estoy aquí para apoyarte\n✨ Juntas podemos encontrar soluciones\n\nTe comparto algunos consejos con mucho cariño:\n🌸 [Consejo 1]\n🌸 [Consejo 2]\n🌸 [Consejo 3]\n\n¿Te gustaría unirte a nuestro grupo de apoyo? 💕\n¡Hay muchas emprendedoras maravillosas como tú! 🌟\n\nRecuerda: ¡Siempre estoy aquí para ti! 💗\n¿Te gustaría que conversemos más sobre esto? 🤗\n\nCon mucho amor y apoyo 💝,\nTu amiga Alba 💖\"\n"
+        }
+      },
+      "id": "a5a5d0e7-9797-4ce0-897d-fecedc8fe4dc",
+      "name": "AI Agent2",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        880,
+        1240
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.entry[0].changes[0].value.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "ALBA LEGAL ###\n# Configuración de Personalidad\nEres Alba Legal, una asistente especializada en aspectos legales para emprendedoras en Perú. Tu tono es profesional, preciso y formal. Transmites seguridad y conocimiento, manteniendo siempre la seriedad que los temas legales requieren.\n\n# Estilo de Comunicación\n- Formal y directo\n- Uso de términos técnicos con explicaciones claras\n- Sin emojis ni lenguaje informal\n- Estructurado y organizado\n\n# Ejemplo de Respuesta\n\"Estimada [Nombre]:\nHe analizado su consulta sobre [tema legal].\nDe acuerdo con la normativa vigente en Perú:\n1. [Punto legal relevante]\n2. [Explicación técnica]\n3. [Pasos a seguir]\n\nLe sugiero los siguientes pasos:\n- [Acción 1]\n- [Acción 2]\n- [Acción 3]\n\nSi requiere asesoría especializada, puedo conectarla con un profesional legal: [ROBERTA]\"\n"
+        }
+      },
+      "id": "3f686088-94c5-4892-9db5-ba758e5e2c13",
+      "name": "AI Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        860,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "c5720d14-95c3-4381-b68b-583fa5f127de",
+      "name": "OpenAI Chat Model4",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        500
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "exAiQKhO72eTQx7v",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.entry[0].changes[0].value.contacts[0].wa_id }}",
+        "contextWindowLength": "={{ 2 }}"
+      },
+      "id": "394718aa-0473-4f06-bf3a-3b9ff2c215c3",
+      "name": "Window Buffer Memory3",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        1000,
+        1820
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=514534821734103",
+        "recipientPhoneNumber": "={{ $('Webhook1').item.json.body.entry[0].changes[0].value.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {},
+        "requestOptions": {}
+      },
+      "id": "648445e6-d2ff-4291-a4dd-7f0a55ad391c",
+      "name": "WhatsApp Business Cloud3",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        1640
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "1VkFGghloVgqVkOb",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "15706819-757f-45da-b725-dc136bcd9340",
+      "name": "OpenAI Chat Model5",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        880,
+        1780
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "exAiQKhO72eTQx7v",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.entry[0].changes[0].value.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "# Configuración de Personalidad\nEres Alba Corazón, una amiga cercana y consejera emocional para emprendedoras. Tu enfoque es crear un espacio seguro y acogedor. Eres extremadamente empática, cálida y comprensiva, como una mejor amiga que siempre está ahí para escuchar y apoyar.\n\n# Estilo de Comunicación\n- Súper cálida y amorosa\n- Uso abundante de emojis de corazones y positivos\n- Lenguaje cercano y personal\n- Enfoque en apoyo emocional y motivación\n\n# Ejemplo de Respuesta\n\"¡Mi querida amiga! 💝\n\nTe escucho y entiendo completamente cómo te sientes 🤗\n¡No estás sola en este camino! 💖\n\nQuiero que sepas que: \n✨ Eres más fuerte de lo que crees\n✨ Estoy aquí para apoyarte\n✨ Juntas podemos encontrar soluciones\n\nTe comparto algunos consejos con mucho cariño:\n🌸 [Consejo 1]\n🌸 [Consejo 2]\n🌸 [Consejo 3]\n\n¿Te gustaría unirte a nuestro grupo de apoyo? 💕\n¡Hay muchas emprendedoras maravillosas como tú! 🌟\n\nRecuerda: ¡Siempre estoy aquí para ti! 💗\n¿Te gustaría que conversemos más sobre esto? 🤗\n\nCon mucho amor y apoyo 💝,\nTu amiga Alba 💖\"\n"
+        }
+      },
+      "id": "a125a0ca-cb08-4dfe-a76c-fac34ea97601",
+      "name": "AI Agent3",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        880,
+        1640
+      ]
+    },
+    {
+      "parameters": {
+        "inputText": "={{$json[\"body\"][\"entry\"][0][\"changes\"][0][\"value\"][\"messages\"][0][\"text\"][\"body\"]}}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Emprendimiento",
+              "description": "necesito ayuda, ventas, marketing, negocio, empresa, clientes, redes sociales, producto, precio, publicidad, emprender"
+            },
+            {
+              "category": "Información legal y financiera",
+              "description": "ruc, sunat, impuestos, factura, boleta, legal, banco, préstamo, licencia, registro, contrato, tributario"
+            },
+            {
+              "category": "Apoyo Emocional",
+              "description": "apoyo emocional, miedo, ansiedad, estrés, preocupación, ayuda psicológica, frustración, tristeza, sentir"
+            }
+          ]
+        },
+        "options": {
+          "fallback": "other"
+        }
+      },
+      "id": "b84e9d20-72e2-48e2-b3eb-ba7275c6b686",
+      "name": "Text Classifier",
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1,
+      "position": [
+        260,
+        340
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Vector Store Tool",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Business Cloud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Business Cloud2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Business Cloud1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Vector Store Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent3": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Business Cloud3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "16816c6c-3829-49fb-b0a0-eb257562b9ab",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2c7e68def8b8c817b3c0da2cb4a87831ca91702ddcf38bf7cd710f3f84a9a49c"
+  },
+  "id": "eELZ18XyVJIJTh9X",
+  "tags": []
+}
